@@ -9,6 +9,13 @@ readme = "readme.md"
 python = "^3.13"
 pillow = "^11.0.0"
 
+[tool.poetry.dev-dependencies]
+pytest = "^6.0.0"
+pytest-cov = "^6.0.0"
+pytest-mock = "*"
+
+[tool.poetry.scripts]
+parc = "parc.cli:main"
 
 [build-system]
 requires = ["poetry-core"]
