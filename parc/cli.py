@@ -1,13 +1,16 @@
 import argparse
 import datetime
 import logging
+import os
 from pathlib import Path
 
 from parc.photos import PhotoCollection
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # TODO log string should be configurable
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -87,14 +90,27 @@ def validate_dir(path_str: str) -> Path:
 
 
 def walk_input_directory(photos: PhotoCollection, input_dir: Path):
-    """Walk the input directory and add photos to the collection."""
-    logger.debug(f"Walk input directory: {input_dir}")
+    """Walking the input directory and add photos to the collection."""
+    logger.debug(f"Walking input directory...: {input_dir}")
 
     # TODO file types should be configurable
-    for photo_path in input_dir.rglob("*.jpg"):
-        logger.info(f"Adding photo: {photo_path}")
-        photos.add_photo(photo_path)
+    for root, dirs, files in os.walk(input_dir, topdown=True):
+        for file in files:
+            file_path = Path(root) / file
+            # TODO add support for filtering file types
+            if file_path.suffix.lower() in [".jpg", ".jpeg", ".png"]:
+                photos.add_photo(file_path)
+    
+    logger.info(f"Found {photos.count()} photos in the input directory.")
 
+def analyze_photos(photos: PhotoCollection):
+    """Analyze the photos in the collection."""
+    logger.debug("Analyzing photos...")
+
+    photos.validate_photo_files()
+    photos.analyze_photos()
+
+    logger.info("Analysis completed.")
 
 def main():
     """Main entry point for the CLI."""
@@ -105,6 +121,7 @@ def main():
 
     photos = PhotoCollection()
     walk_input_directory(photos, input_path)
+    analyze_photos(photos)
 
     logger.debug("Processing completed successfully.")
 

@@ -1,6 +1,6 @@
 /target
 
-test/test_data/*
+tests/test_data/
 
 .log/*
 
